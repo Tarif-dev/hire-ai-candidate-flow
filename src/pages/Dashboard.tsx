@@ -94,15 +94,15 @@ const Dashboard = () => {
           </Select>
           
           <Select 
-            value={filterScore?.toString() || ""} 
-            onValueChange={(value) => setFilterScore(value ? parseInt(value, 10) : null)}
+            value={filterScore?.toString() || "all"} 
+            onValueChange={(value) => setFilterScore(value === "all" ? null : parseInt(value, 10))}
           >
             <SelectTrigger className="w-[180px]">
               <FilterIcon className="mr-2 h-4 w-4" />
               <SelectValue placeholder="Filter by score" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Candidates</SelectItem>
+              <SelectItem value="all">All Candidates</SelectItem>
               <SelectItem value="80">High Match (80%+)</SelectItem>
               <SelectItem value="60">Medium Match (60-79%)</SelectItem>
               <SelectItem value="0">Low Match (&lt; 60%)</SelectItem>
