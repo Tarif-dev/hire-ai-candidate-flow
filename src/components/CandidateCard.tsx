@@ -4,22 +4,31 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { MatchScore } from "@/components/MatchScore";
-import { Candidate, Match } from "@/types";
-import { CalendarIcon, DownloadIcon, StarIcon } from "lucide-react";
+import { InterviewDialog } from "@/components/InterviewDialog";
+import { Candidate, Match, JobDescription } from "@/types";
+import { DownloadIcon, StarIcon } from "lucide-react";
+import { useAppContext } from "@/context/AppContext";
 
 interface CandidateCardProps {
   candidate: Candidate;
   match: Match;
   onScheduleInterview: () => void;
   onToggleShortlist: () => void;
+  jobDetails?: JobDescription;
 }
 
 export function CandidateCard({
   candidate,
   match,
   onScheduleInterview,
-  onToggleShortlist
+  onToggleShortlist,
+  jobDetails
 }: CandidateCardProps) {
+  const { jobs } = useAppContext();
+  
+  // Get the job details if not provided
+  const job = jobDetails || jobs.find(j => j.id === match.jobId);
+  
   // Get the initials from the candidate's name
   const getInitials = (name: string) => {
     return name
@@ -109,10 +118,17 @@ export function CandidateCard({
             Resume
           </a>
         </Button>
-        <Button size="sm" onClick={onScheduleInterview}>
-          <CalendarIcon className="h-4 w-4 mr-1" />
-          Schedule Interview
-        </Button>
+        {job ? (
+          <InterviewDialog 
+            candidate={candidate} 
+            job={job} 
+            onScheduled={onScheduleInterview} 
+          />
+        ) : (
+          <Button size="sm" onClick={onScheduleInterview}>
+            Schedule Interview
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
