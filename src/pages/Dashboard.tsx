@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAppContext } from "@/context/AppContext";
 import { CandidateCard } from "@/components/CandidateCard";
 import { Button } from "@/components/ui/button";
@@ -9,11 +9,35 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarIcon, FilterIcon, SlidersHorizontalIcon } from "lucide-react";
+import { DatabaseStatus } from "@/components/DatabaseStatus";
+import { db } from "@/services/database";
 
 const Dashboard = () => {
   const { jobs, candidates, matches, currentJob, interviews, scheduleInterview, shortlistCandidate } = useAppContext();
   const [filterScore, setFilterScore] = useState<number | null>(null);
   const [sortBy, setSortBy] = useState("score");
+  const [tableStats, setTableStats] = useState<{ name: string; count: number }[]>([]);
+  
+  // Get database table stats
+  useEffect(() => {
+    const getTableCounts = async () => {
+      const [jobsCount, candidatesCount, matchesCount, interviewsCount] = await Promise.all([
+        db.jobs.count(),
+        db.candidates.count(),
+        db.matches.count(),
+        db.interviews.count()
+      ]);
+      
+      setTableStats([
+        { name: 'Jobs', count: jobsCount },
+        { name: 'Candidates', count: candidatesCount },
+        { name: 'Matches', count: matchesCount },
+        { name: 'Interviews', count: interviewsCount }
+      ]);
+    };
+    
+    getTableCounts();
+  }, []);
   
   // If no current job is selected, use the first job in the list
   const selectedJob = currentJob || jobs[0];
@@ -73,6 +97,9 @@ const Dashboard = () => {
   
   return (
     <div className="space-y-6">
+      {/* Add Database Status */}
+      <DatabaseStatus dbName="SmartHireDB" tables={tableStats} />
+      
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{selectedJob.title}</h1>
