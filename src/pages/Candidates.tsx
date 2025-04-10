@@ -12,7 +12,7 @@ import { SearchIcon } from "lucide-react";
 const Candidates = () => {
   const { candidates, jobs } = useAppContext();
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterSkill, setFilterSkill] = useState("");
+  const [filterSkill, setFilterSkill] = useState("all");
   
   // Extract all unique skills across candidates
   const allSkills = Array.from(
@@ -27,7 +27,7 @@ const Candidates = () => {
       candidate.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       candidate.email.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesSkill = filterSkill === "" || 
+    const matchesSkill = filterSkill === "all" || 
       candidate.skills.some(skill => skill.toLowerCase().includes(filterSkill.toLowerCase()));
     
     return matchesSearch && matchesSkill;
@@ -58,7 +58,7 @@ const Candidates = () => {
             <SelectValue placeholder="Filter by skill" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Skills</SelectItem>
+            <SelectItem value="all">All Skills</SelectItem>
             {allSkills.map(skill => (
               <SelectItem key={skill} value={skill}>
                 {skill}
@@ -129,7 +129,7 @@ const Candidates = () => {
                 className="mt-4"
                 onClick={() => {
                   setSearchTerm("");
-                  setFilterSkill("");
+                  setFilterSkill("all");
                 }}
               >
                 Clear Filters
@@ -183,7 +183,7 @@ const Candidates = () => {
                 className="mt-4"
                 onClick={() => {
                   setSearchTerm("");
-                  setFilterSkill("");
+                  setFilterSkill("all");
                 }}
               >
                 Clear Filters
