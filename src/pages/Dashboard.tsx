@@ -105,7 +105,7 @@ const Dashboard = () => {
               <SelectItem value="">All Candidates</SelectItem>
               <SelectItem value="80">High Match (80%+)</SelectItem>
               <SelectItem value="60">Medium Match (60-79%)</SelectItem>
-              <SelectItem value="0">Low Match (< 60%)</SelectItem>
+              <SelectItem value="0">Low Match (&lt; 60%)</SelectItem>
             </SelectContent>
           </Select>
         </div>
