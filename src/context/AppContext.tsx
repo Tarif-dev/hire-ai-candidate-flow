@@ -1,7 +1,7 @@
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, ReactNode } from "react";
 import { JobDescription, Candidate, Match, Interview } from "../types";
-import { db, dbReady } from "../services/database";
+import { mockJobs, mockCandidates, mockMatches, mockInterviews } from "../data/mockData";
 
 interface AppContextType {
   // Data
@@ -14,16 +14,13 @@ interface AppContextType {
   currentJob: JobDescription | null;
   selectedCandidates: Candidate[];
   
-  // State
-  isLoading: boolean;
-  
   // Actions
-  addJob: (job: JobDescription) => Promise<void>;
-  updateJob: (job: JobDescription) => Promise<void>;
-  addCandidates: (candidates: Candidate[]) => Promise<void>;
-  createMatches: (jobId: string, candidateIds: string[]) => Promise<void>;
-  shortlistCandidate: (matchId: string, shortlisted: boolean) => Promise<void>;
-  scheduleInterview: (candidateId: string, jobId: string, datetime: string) => Promise<void>;
+  addJob: (job: JobDescription) => void;
+  updateJob: (job: JobDescription) => void;
+  addCandidates: (candidates: Candidate[]) => void;
+  createMatches: (jobId: string, candidateIds: string[]) => void;
+  shortlistCandidate: (matchId: string, shortlisted: boolean) => void;
+  scheduleInterview: (candidateId: string, jobId: string, datetime: string) => void;
   setCurrentJob: (job: JobDescription | null) => void;
   selectCandidate: (candidate: Candidate) => void;
   unselectCandidate: (candidateId: string) => void;
@@ -34,109 +31,78 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
   // State
-  const [jobs, setJobs] = useState<JobDescription[]>([]);
-  const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [interviews, setInterviews] = useState<Interview[]>([]);
+  const [jobs, setJobs] = useState<JobDescription[]>(mockJobs);
+  const [candidates, setCandidates] = useState<Candidate[]>(mockCandidates);
+  const [matches, setMatches] = useState<Match[]>(mockMatches);
+  const [interviews, setInterviews] = useState<Interview[]>(mockInterviews);
   const [currentJob, setCurrentJob] = useState<JobDescription | null>(null);
   const [selectedCandidates, setSelectedCandidates] = useState<Candidate[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-
-  // Load data from database on initial render
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        // Wait for database initialization
-        await dbReady;
-        
-        // Fetch all data
-        const [jobsData, candidatesData, matchesData, interviewsData] = await Promise.all([
-          db.getAllJobs(),
-          db.getAllCandidates(),
-          db.getAllMatches(),
-          db.getAllInterviews()
-        ]);
-        
-        setJobs(jobsData);
-        setCandidates(candidatesData);
-        setMatches(matchesData);
-        setInterviews(interviewsData);
-      } catch (error) {
-        console.error("Failed to load data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    loadData();
-  }, []);
 
   // Actions
-  const addJob = async (job: JobDescription) => {
-    try {
-      await db.addJob(job);
-      const updatedJobs = await db.getAllJobs();
-      setJobs(updatedJobs);
-    } catch (error) {
-      console.error("Failed to add job:", error);
-    }
+  const addJob = (job: JobDescription) => {
+    setJobs(prevJobs => [...prevJobs, job]);
   };
 
-  const updateJob = async (job: JobDescription) => {
-    try {
-      await db.updateJob(job);
-      const updatedJobs = await db.getAllJobs();
-      setJobs(updatedJobs);
-    } catch (error) {
-      console.error("Failed to update job:", error);
-    }
+  const updateJob = (job: JobDescription) => {
+    setJobs(prevJobs => prevJobs.map(j => j.id === job.id ? job : j));
   };
 
-  const addCandidates = async (newCandidates: Candidate[]) => {
-    try {
-      await db.addCandidates(newCandidates);
-      const updatedCandidates = await db.getAllCandidates();
-      setCandidates(updatedCandidates);
-    } catch (error) {
-      console.error("Failed to add candidates:", error);
-    }
+  const addCandidates = (newCandidates: Candidate[]) => {
+    setCandidates(prevCandidates => [...prevCandidates, ...newCandidates]);
   };
 
-  const createMatches = async (jobId: string, candidateIds: string[]) => {
-    try {
-      const newMatches = await db.createMatches(jobId, candidateIds);
-      setMatches(prevMatches => [...prevMatches, ...newMatches]);
-    } catch (error) {
-      console.error("Failed to create matches:", error);
-    }
-  };
-
-  const shortlistCandidate = async (matchId: string, shortlisted: boolean) => {
-    try {
-      await db.updateMatchShortlist(matchId, shortlisted);
-      const updatedMatches = await db.getAllMatches();
-      setMatches(updatedMatches);
-    } catch (error) {
-      console.error("Failed to update shortlist:", error);
-    }
-  };
-
-  const scheduleInterview = async (candidateId: string, jobId: string, datetime: string) => {
-    try {
-      const newInterview: Interview = {
-        id: `interview-${Date.now()}`,
-        candidateId,
+  const createMatches = (jobId: string, candidateIds: string[]) => {
+    // In a real app, this would call an API to analyze and match candidates
+    // Here we'll create mock matches with random scores
+    const newMatches = candidateIds.map((candidateId, index) => {
+      const score = Math.random() * 0.4 + 0.6; // Random score between 0.6 and 1.0
+      return {
+        id: `match-${Date.now()}-${index}`,
         jobId,
-        datetime,
-        status: "scheduled"
+        candidateId,
+        score,
+        matchDetails: [
+          { 
+            category: "skills", 
+            score: Math.random() * 0.3 + 0.7,
+            details: "Skill match analysis" 
+          },
+          { 
+            category: "experience", 
+            score: Math.random() * 0.3 + 0.7,
+            details: "Experience match analysis" 
+          },
+          { 
+            category: "education", 
+            score: Math.random() * 0.3 + 0.7,
+            details: "Education match analysis" 
+          }
+        ],
+        shortlisted: score > 0.8,
+        notes: ""
       };
-      
-      await db.addInterview(newInterview);
-      const updatedInterviews = await db.getAllInterviews();
-      setInterviews(updatedInterviews);
-    } catch (error) {
-      console.error("Failed to schedule interview:", error);
-    }
+    });
+
+    setMatches(prevMatches => [...prevMatches, ...newMatches]);
+  };
+
+  const shortlistCandidate = (matchId: string, shortlisted: boolean) => {
+    setMatches(prevMatches => 
+      prevMatches.map(match => 
+        match.id === matchId ? { ...match, shortlisted } : match
+      )
+    );
+  };
+
+  const scheduleInterview = (candidateId: string, jobId: string, datetime: string) => {
+    const newInterview: Interview = {
+      id: `interview-${Date.now()}`,
+      candidateId,
+      jobId,
+      datetime,
+      status: "scheduled"
+    };
+    setInterviews(prevInterviews => [...prevInterviews, newInterview]);
   };
 
   const selectCandidate = (candidate: Candidate) => {
@@ -165,7 +131,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
         interviews,
         currentJob,
         selectedCandidates,
-        isLoading,
         addJob,
         updateJob,
         addCandidates,
