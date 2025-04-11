@@ -9,18 +9,49 @@ import { parseResume } from "@/utils/candidateUtils";
 import { Candidate } from "@/types";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { X } from "lucide-react";
+import { 
+  FileIcon, 
+  FileTextIcon, 
+  LoaderIcon, 
+  UploadCloudIcon, 
+  UserIcon, 
+  X, 
+  CheckCircle2Icon 
+} from "lucide-react";
 
 export function ResumeUpload() {
   const { addCandidates, createMatches, currentJob } = useAppContext();
   const [files, setFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  const [dragActive, setDragActive] = useState(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       // Convert FileList to array and append to existing files
       const newFiles = Array.from(e.target.files);
+      setFiles(prevFiles => [...prevFiles, ...newFiles]);
+      setUploadError("");
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const newFiles = Array.from(e.dataTransfer.files);
       setFiles(prevFiles => [...prevFiles, ...newFiles]);
       setUploadError("");
     }
@@ -110,69 +141,142 @@ University of Technology - Bachelor of Computer Science (2014-2018)`;
     }
   };
 
+  const getFileIcon = (fileName: string) => {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    
+    return extension === 'pdf' ? 
+      <FileIcon className="h-4 w-4 text-red-500" /> : 
+      extension === 'docx' ? 
+        <FileTextIcon className="h-4 w-4 text-blue-500" /> : 
+        <FileTextIcon className="h-4 w-4 text-gray-500" />;
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Upload Resumes</CardTitle>
+    <Card hoverEffect className="w-full overflow-hidden">
+      <CardHeader className="space-y-1 pb-2">
+        <div className="h-10 w-10 rounded-full bg-secondary/10 flex items-center justify-center mb-2">
+          <UserIcon className="h-5 w-5 text-secondary" />
+        </div>
+        <CardTitle className="text-xl">Upload Resumes</CardTitle>
         <CardDescription>
           Upload candidate resumes for matching with the job description
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-2">
-          <Label htmlFor="resumeUpload">Select Resume Files</Label>
-          <Input
+      <CardContent className="space-y-5 pt-4">
+        <div 
+          className={`border-2 border-dashed rounded-lg ${dragActive ? 'border-primary bg-primary/5' : 'border-border/70'} 
+            transition-colors duration-200 p-8 text-center cursor-pointer relative`}
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+        >
+          <input
             id="resumeUpload"
             type="file"
             multiple
             accept=".pdf,.docx,.txt"
             onChange={handleFileChange}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
           />
-          <p className="text-sm text-muted-foreground">
-            Supported formats: PDF, DOCX, TXT
-          </p>
+          
+          <div className="flex flex-col items-center justify-center gap-3">
+            <div className="h-12 w-12 rounded-full bg-muted/80 flex items-center justify-center">
+              <UploadCloudIcon className="h-6 w-6 text-muted-foreground" />
+            </div>
+            <div className="space-y-1">
+              <p className="font-medium">
+                Drop your resume files here or click to browse
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Supported formats: PDF, DOCX, TXT
+              </p>
+            </div>
+          </div>
         </div>
         
         {files.length > 0 && (
           <div className="space-y-2">
-            <Label>Selected Files</Label>
-            <div className="border rounded-md p-3 space-y-2">
-              {files.map((file, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <Badge variant="outline" className="flex items-center space-x-2">
-                    <span>{file.name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      ({(file.size / 1024).toFixed(0)} KB)
-                    </span>
-                  </Badge>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeFile(index)}
-                    className="h-6 w-6 p-0"
-                  >
-                    <X className="h-4 w-4" />
-                    <span className="sr-only">Remove</span>
-                  </Button>
-                </div>
-              ))}
+            <div className="flex items-center justify-between">
+              <Label className="text-sm font-medium">Selected Files ({files.length})</Label>
+              {files.length > 1 && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setFiles([])}
+                  className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  Clear all
+                </Button>
+              )}
+            </div>
+            <div className="border rounded-lg overflow-hidden">
+              <div className="divide-y max-h-[200px] overflow-y-auto">
+                {files.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 hover:bg-muted/30">
+                    <div className="flex items-center space-x-3 truncate">
+                      {getFileIcon(file.name)}
+                      <div className="truncate">
+                        <p className="font-medium truncate">{file.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {(file.size / 1024).toFixed(0)} KB
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeFile(index)}
+                      className="h-8 w-8 p-0 rounded-full hover:bg-muted"
+                    >
+                      <X className="h-4 w-4" />
+                      <span className="sr-only">Remove</span>
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         )}
         
         {uploadError && (
-          <Alert variant="destructive">
-            <AlertDescription>{uploadError}</AlertDescription>
+          <Alert variant="destructive" className="border-red-200 text-red-700 bg-red-50">
+            <AlertDescription className="flex items-center gap-2">
+              {uploadError}
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {!currentJob && files.length > 0 && (
+          <Alert className="border-amber-200 text-amber-700 bg-amber-50">
+            <AlertDescription className="flex items-center gap-2">
+              Please upload a job description first
+            </AlertDescription>
           </Alert>
         )}
       </CardContent>
-      <CardFooter>
+      <CardFooter className="border-t bg-muted/10 px-6 py-4">
         <Button 
-          className="w-full" 
+          className="w-full gap-2" 
           onClick={handleUpload}
           disabled={isUploading || files.length === 0 || !currentJob}
         >
-          {isUploading ? "Processing..." : `Analyze ${files.length} Resumes`}
+          {isUploading ? (
+            <>
+              <LoaderIcon className="h-4 w-4 animate-spin" />
+              <span>Processing resumes...</span>
+            </>
+          ) : files.length > 0 ? (
+            <>
+              <CheckCircle2Icon className="h-4 w-4" />
+              <span>Analyze {files.length} {files.length === 1 ? 'Resume' : 'Resumes'}</span>
+            </>
+          ) : (
+            <>
+              <UploadCloudIcon className="h-4 w-4" />
+              <span>Select Resumes to Upload</span>
+            </>
+          )}
         </Button>
       </CardFooter>
     </Card>

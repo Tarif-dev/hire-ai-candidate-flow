@@ -1,15 +1,21 @@
+
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
 const Card = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+  React.HTMLAttributes<HTMLDivElement> & {
+    gradient?: boolean;
+    hoverEffect?: boolean;
+  }
+>(({ className, gradient = false, hoverEffect = false, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
       "rounded-lg border bg-card text-card-foreground shadow-sm",
+      gradient && "gradient-border",
+      hoverEffect && "transition-all duration-300 hover:shadow-soft-md hover:-translate-y-1",
       className
     )}
     {...props}
@@ -31,12 +37,16 @@ CardHeader.displayName = "CardHeader"
 
 const CardTitle = React.forwardRef<
   HTMLParagraphElement,
-  React.HTMLAttributes<HTMLHeadingElement>
->(({ className, ...props }, ref) => (
-  <h3
+  React.HTMLAttributes<HTMLHeadingElement> & { 
+    as?: React.ElementType;
+    gradient?: boolean; 
+  }
+>(({ className, as: Comp = "h3", gradient = false, ...props }, ref) => (
+  <Comp
     ref={ref}
     className={cn(
-      "text-2xl font-semibold leading-none tracking-tight",
+      "font-semibold leading-none tracking-tight",
+      gradient && "bg-gradient-primary bg-clip-text text-transparent",
       className
     )}
     {...props}
