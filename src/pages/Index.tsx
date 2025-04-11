@@ -24,7 +24,7 @@ const Index = () => {
           transition={{ delay: 0.2 }}
         >
           <h2 className="text-3xl md:text-4xl font-display font-bold tracking-tight">
-            Get Started with <span className="bg-gradient-primary bg-clip-text text-transparent">SmartHire AI</span>
+            Get Started with <span className="bg-gradient-primary bg-clip-text text-transparent">TalentFlux</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Upload a job description and candidate resumes to match the best candidates
@@ -70,8 +70,8 @@ const Index = () => {
                   <BriefcaseIcon className="h-4 w-4 text-white" />
                 </div>
                 <span className="text-lg font-display font-bold">
-                  <span className="bg-gradient-primary bg-clip-text text-transparent">Smart</span>
-                  <span>Hire AI</span>
+                  <span className="bg-gradient-primary bg-clip-text text-transparent">Talent</span>
+                  <span>Flux</span>
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">
@@ -104,7 +104,7 @@ const Index = () => {
               <h3 className="font-medium mb-4">Contact</h3>
               <ul className="space-y-2 text-sm">
                 <li className="text-muted-foreground">
-                  support@smarthire-ai.com
+                  support@talentflux.com
                 </li>
                 <li className="text-muted-foreground">
                   (555) 123-4567
@@ -114,7 +114,7 @@ const Index = () => {
           </div>
           
           <div className="border-t mt-8 pt-8 text-center text-xs text-muted-foreground">
-            <p>© 2025 SmartHire AI. All rights reserved.</p>
+            <p>© 2025 TalentFlux. All rights reserved.</p>
           </div>
         </div>
       </footer>

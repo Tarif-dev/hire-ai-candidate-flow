@@ -65,8 +65,8 @@ export function Navbar() {
                 <BriefcaseIcon className="h-5 w-5 text-white" />
               </div>
               <span className="text-xl font-display font-bold transition-all">
-                <span className="bg-gradient-primary bg-clip-text text-transparent">Smart</span>
-                <span>Hire AI</span>
+                <span className="bg-gradient-primary bg-clip-text text-transparent">Talent</span>
+                <span>Flux</span>
               </span>
             </Link>
             
@@ -139,7 +139,7 @@ export function Navbar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <div className="h-9 w-9 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground font-medium text-sm cursor-pointer hover:shadow-md transition-shadow">
-                  SH
+                  TF
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -243,10 +243,10 @@ export function Navbar() {
           <div className="mt-auto border-t pt-6 px-4">
             <div className="flex items-center space-x-3 mb-6">
               <div className="h-12 w-12 rounded-full bg-gradient-primary flex items-center justify-center text-primary-foreground font-medium text-lg">
-                SH
+                TF
               </div>
               <div>
-                <div className="font-medium">SmartHire User</div>
+                <div className="font-medium">TalentFlux User</div>
                 <div className="text-sm text-muted-foreground">user@example.com</div>
               </div>
             </div>
@@ -257,7 +257,7 @@ export function Navbar() {
             </Button>
             
             <div className="text-xs text-muted-foreground text-center mt-6">
-              © 2025 SmartHire AI. All rights reserved.
+              © 2025 TalentFlux. All rights reserved.
             </div>
           </div>
         </div>
